@@ -1,0 +1,82 @@
+pipeline 	{
+	agent any
+	
+environment {
+	git_link = "https://github.com/aravinth34/website.git"
+	server_n = "192.168.56.11"
+	user_n = "maravinth"
+	sshpass_pw = "/var/lib/jenkins/workspace/password"
+	BS_Path_N = "/usr/share/nginx/html/"
+	BD_Path_J = "/opt/nginx_bakup/test"
+	scpHtk = "StrictHostKeyChecking"
+	Back_fold_change = "copy_folder.sh"
+	DDes_Path_N = "/usr/share/nginx/html"
+	user_n_a = "appadmin"
+	sshpass_pw_a = "/var/lib/jenkins/workspace/password_appadmin"
+	Nginx_start = "sudo systemctl start nginx"
+	Nginx_stop = "sudo systemctl stop nginx"
+	
+			}
+
+stages 		{
+
+  stage ('S1:Git download'){
+  steps {
+  echo "info: $git_link"
+  git "${git_link}"
+}
+}
+
+  stage ('S2:Backup_Cleanup')  {
+  steps {
+  echo "info: $BD_Path_J"
+  sh 'rm -rf ${BD_Path_J}'
+  }
+  }
+  
+
+
+  stage ('S1:Nginx_stop')  {
+  steps	{
+  echo "info: $Nginx_stop"
+  sh "sshpass -f ${sshpass_pw_a} ssh -tt ${user_n_a}@${server_n} ${Nginx_stop}"
+}
+}	
+
+  stage ('S3:Backup')  {
+  steps	{
+  echo "info: ${user_n} $sshpass_pw $server_n ${BS_Path_N} ${BD_Path_J}"
+  sh "sshpass -f ${sshpass_pw} scp -o ${scpHtk}=no -r ${user_n}@${server_n}:${BS_Path_N} ${BD_Path_J}"
+}
+}
+
+  stage ('S4:Backup_folder_change')  {
+  steps {
+  echo "info: $Back_fold_change"
+  sh 'sh ${Back_fold_change}'
+  }
+  }
+  
+    stage ('S5:Deployment'){
+	steps {
+	echo "info: Deployment $WORKSPACE"
+  sh 'sshpass -f ${sshpass_pw} scp -o ${scpHtk}=no -r ${WORKSPACE}/* ${user_n}@${server_n}:${DDes_Path_N}'
+  }
+  }
+  
+ 
+  stage ('S6:Nginx_start')  {
+  steps	{
+  echo "info: $Nginx_start"
+  sh "sshpass -f ${sshpass_pw_a} ssh -tt ${user_n_a}@${server_n} ${Nginx_start}"
+  }
+  }
+
+  stage ('S7:Clean Up')  {
+  steps	{
+  cleanWs()
+  }
+  }
+
+}
+}
