@@ -4,3 +4,7 @@ add sonar qube plugin
 then goto system or (/manage/configure)
 SonarQube servers 
 there you need to add sonarqube url along with port numnber
+
+in the sonar qube my account security need to create the token
+
+http://url:9000/account/security
