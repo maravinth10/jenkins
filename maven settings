@@ -1,0 +1,10 @@
+for maven settings 
+goto jenkins url 
+manage jenkins
+tools
+Maven installations 
+add
+here 2 options are there 
+Install automatically -select version - name shold be same mention in the pipline in thi case maven3
+
+if manual means you need to mention the excat maven path
