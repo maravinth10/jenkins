@@ -13,7 +13,7 @@ node {
             sh "${mvnHome}/bin/mvn sonar:sonar"
         }
     }
-        stage('Aravinth Build Docker Imager') {
+    stage('Aravinth Build Docker Imager') {
         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker pull jjaba/myweb:0.0.2'
     }
 
@@ -27,18 +27,16 @@ node {
         sh "docker login -u admin -p Admin@123 ubuntunexus.local:8087"
         sh "docker tag jjaba/myweb:0.0.2 ubuntunexus.local:8087/jjaba:1.0.0"
         sh 'docker push ubuntunexus.local:8087/jjaba:1.0.0'
-    }
+    }    
+
     stage('Aravinth Remove Previous Container') {
         try {
-            sh 'docker rm -f tomcattest'
+            sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker rm -f tomcattest'
         } catch(error) {
             //  do nothing if there is an exception
         }
         stage('Aravinth Docker deployment') {
-            sh 'docker run -itd -p "8090:8080" --name tomcattest -v "/opt/tomcatsync/syc:/usr/local/tomcat/syc" jjaba/myweb:0.0.2'
+            sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker run -itd -p "80:8080" --name tomcattest -v "/opt/tomcatsync/syc:/usr/local/tomcat/syc" jjaba/myweb:0.0.2'
         }
-    }
-    stage ('Aravinth File Transfer') {
-        sh "sshpass -f '/opt/tomcatsync/pass' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r Dockerfile ec2-user@ubuntuwebserver.local:/opt/tomcatsync/"
-    }
+        }
 }
