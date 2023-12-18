@@ -1,4 +1,6 @@
 in the jenkins url
-goto configure
-then system
+goto manage jenkins
+add sonar qube plugin
+then goto system or (/manage/configure)
+SonarQube servers 
 there you need to add sonarqube url along with port numnber
