@@ -2,7 +2,7 @@ pipeline 	{
 	agent any
 	
 environment {
-		ip="192.168.56.11"
+		nginx_ip="192.168.56.11"
 }
 
 stages 		{
@@ -33,14 +33,14 @@ stages 		{
 
     stage('Aravinth Docker compose') {
 	steps {
-        sh 'scp /home/ec2-user/mumbai_linux_pem.pem docker-compose.yml ec2-user@$ip:/home/ec2-user'
+        sh 'scp /home/ec2-user/mumbai_linux_pem.pem docker-compose.yml ec2-user@${nginx_ip}:/home/ec2-user'
     }
 	}
 
     stage('Aravinth Remove Previous Container') {
 	steps {
         try {
-            sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker rm -f ara_tomcat'
+            sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rm -f ara_tomcat'
         } catch(error) {
             //  do nothing if there is an exception
         }
@@ -48,7 +48,7 @@ stages 		{
 
     stage('Aravinth Build Docker Imager') {
 	steps {
-        sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.235.69.80 docker compose up -d'
+        sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker compose up -d'
     }
 	}
 
