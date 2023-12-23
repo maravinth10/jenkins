@@ -13,8 +13,19 @@ node {
             sh "${mvnHome}/bin/mvn sonar:sonar"
         }
     }
+    stage('Aravinth Docker compose') {
+        sh 'scp /home/ec2-user/mumbai_linux_pem.pem docker-compose.yml ec2-user@13.233.90.149:/home/ec2-user'
+    }
+
+    stage('Aravinth Remove Previous Container') {
+        try {
+            sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker rm -f ara_tomcat'
+        } catch(error) {
+            //  do nothing if there is an exception
+        }
+
     stage('Aravinth Build Docker Imager') {
-        sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker pull jjaba/myweb:0.0.2'
+        sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.235.69.80 docker compose up -d'
     }
 
     stage('Aravinth Docker Image Push') {
@@ -29,14 +40,4 @@ node {
         sh 'docker push ubuntunexus.local:8087/jjaba:1.0.0'
     }    
 
-    stage('Aravinth Remove Previous Container') {
-        try {
-            sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker rm -f tomcattest'
-        } catch(error) {
-            //  do nothing if there is an exception
-        }
-        stage('Aravinth Docker deployment') {
-            sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker run -itd -p "80:8080" --name tomcattest -v "/opt/tomcatsync/syc:/usr/local/tomcat/syc" jjaba/myweb:0.0.2'
-        }
-        }
 }
