@@ -1,0 +1,72 @@
+pipeline 	{
+	agent any
+	
+environment {
+		ip="192.168.56.11"
+}
+
+stages 		{
+
+ {
+    stage('Aravinth SCM Checkout') {
+	steps {
+        git 'https://github.com/maravinth10/website_old.git'
+    }
+	}
+
+    stage('Aravinth Compile-Package') {
+	steps {
+        def mvnHome =  tool name: 'maven3', type: 'maven'
+        sh "${mvnHome}/bin/mvn clean package"
+        sh 'mv target/myweb*.war target/newapp.war'
+    }
+	}
+
+    stage('Aravinth SonarQube Analysis') {
+	steps {
+        def mvnHome =  tool name: 'maven3', type: 'maven'
+        withSonarQubeEnv('sonar') {
+            sh "${mvnHome}/bin/mvn sonar:sonar"
+        }
+    }
+	}
+
+    stage('Aravinth Docker compose') {
+	steps {
+        sh 'scp /home/ec2-user/mumbai_linux_pem.pem docker-compose.yml ec2-user@$ip:/home/ec2-user'
+    }
+	}
+
+    stage('Aravinth Remove Previous Container') {
+	steps {
+        try {
+            sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.233.90.149 docker rm -f ara_tomcat'
+        } catch(error) {
+            //  do nothing if there is an exception
+        }
+	}
+
+    stage('Aravinth Build Docker Imager') {
+	steps {
+        sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@13.235.69.80 docker compose up -d'
+    }
+	}
+
+    stage('Aravinth Docker Image Push') {
+	steps {
+        withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPassword')]) {
+            sh "docker login -u jjaba -p ${dockerPassword}"
+        }
+        sh 'docker push jjaba/myweb:0.0.2'
+    }
+	}
+
+    stage('Aravinth Nexus Image Push') {
+	steps {
+        sh "docker login -u admin -p Admin@123 ubuntunexus.local:8087"
+        sh "docker tag jjaba/myweb:0.0.2 ubuntunexus.local:8087/jjaba:1.0.0"
+        sh 'docker push ubuntunexus.local:8087/jjaba:1.0.0'
+    }    
+	}
+}
+}
