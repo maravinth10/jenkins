@@ -4,15 +4,17 @@ pipeline 	{
 	
 environment {
 	nginx_ip="192.168.56.11"
-}
+	}
 
-stages 		{
+stages {
+
+
     stage('Aravinth SCM Checkout') {
 	steps {
         git 'https://github.com/maravinth10/website_old.git'
     }
     }
-    }
+
 
     stage('Aravinth Compile-Package') {
 	steps {
