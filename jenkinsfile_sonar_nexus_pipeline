@@ -1,8 +1,9 @@
 pipeline 	{
+
 	agent any
 	
 environment {
-		nginx_ip="192.168.56.11"
+	nginx_ip="192.168.56.11"
 }
 
 stages 		{
@@ -10,7 +11,8 @@ stages 		{
 	steps {
         git 'https://github.com/maravinth10/website_old.git'
     }
-	}
+    }
+    }
 
     stage('Aravinth Compile-Package') {
 	steps {
@@ -18,7 +20,7 @@ stages 		{
         sh "${mvnHome}/bin/mvn clean package"
         sh 'mv target/myweb*.war target/newapp.war'
     }
-	}
+    }
 
     stage('Aravinth SonarQube Analysis') {
 	steps {
