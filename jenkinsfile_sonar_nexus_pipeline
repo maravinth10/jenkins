@@ -1,28 +1,27 @@
 pipeline 	{
 
-	agent any
-	
-environment {
-	nginx_ip="192.168.56.11"
-	}
+		agent any
 
-stages {
+environment	 {
+		nginx_ip="192.168.56.11"
+		def mvnHome =  tool name: 'maven3', type: 'maven'
+		}
+
+    tools { 
+       	 maven 'maven3'
+    	 }
+
+stages 		{
 
 
-    stage('Aravinth SCM Checkout') {
+
+    stage ('Aravinth Compile-Package') {
 	steps {
-        git 'https://github.com/maravinth10/website_old.git'
-    }
-    }
-
-
-    stage('Aravinth Compile-Package') {
-	steps {
-        def mvnHome =  tool name: 'maven3', type: 'maven'
         sh "${mvnHome}/bin/mvn clean package"
         sh 'mv target/myweb*.war target/newapp.war'
     }
     }
+
 
     stage('Aravinth SonarQube Analysis') {
 	steps {
@@ -70,5 +69,7 @@ stages {
         sh 'docker push ubuntunexus.local:8087/jjaba:1.0.0'
     }    
 	}
+
+
 }
 }
