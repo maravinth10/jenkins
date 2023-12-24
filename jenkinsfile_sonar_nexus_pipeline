@@ -6,8 +6,6 @@ environment {
 }
 
 stages 		{
-
- {
     stage('Aravinth SCM Checkout') {
 	steps {
         git 'https://github.com/maravinth10/website_old.git'
