@@ -7,10 +7,6 @@ pipeline
 	  def mvnHome =  tool name: 'maven3', type: 'maven';
 	  }
 
-         tools{ 
-       	  maven 'maven3'
-          }
-
 stages
 {
 
