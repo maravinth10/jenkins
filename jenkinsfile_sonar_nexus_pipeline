@@ -15,6 +15,10 @@ stages
 {
 
 
+ 	stage('Aravinth SCM Checkout'){
+         git 'https://github.com/maravinth10/website_old.git'
+         }
+
     	stage('Aravinth Compile-Package'){
 	 steps{
          sh "${mvnHome}/bin/mvn clean package"
