@@ -1,75 +1,64 @@
-pipeline 	{
+pipeline
+{
+         agent any
 
-		agent any
+         environment{
+	  nginx_ip="192.168.56.11";
+	  def mvnHome =  tool name: 'maven3', type: 'maven';
+	  }
 
-environment	 {
-		nginx_ip="192.168.56.11"
-		def mvnHome =  tool name: 'maven3', type: 'maven'
-		}
+         tools{ 
+       	  maven 'maven3'
+          }
 
-    tools { 
-       	 maven 'maven3'
-    	 }
-
-stages 		{
-
-
-
-    stage ('Aravinth Compile-Package') {
-	steps {
-        sh "${mvnHome}/bin/mvn clean package"
-        sh 'mv target/myweb*.war target/newapp.war'
-    }
-    }
+stages
+{
 
 
-    stage('Aravinth SonarQube Analysis') {
-	steps {
-        def mvnHome =  tool name: 'maven3', type: 'maven'
-        withSonarQubeEnv('sonar') {
-            sh "${mvnHome}/bin/mvn sonar:sonar"
-        }
-    }
-	}
+    	stage('Aravinth Compile-Package'){
+	 steps{
+         sh "${mvnHome}/bin/mvn clean package"
+         sh 'mv target/myweb*.war target/newapp.war'
+         }}
 
-    stage('Aravinth Docker compose') {
-	steps {
-        sh 'scp /home/ec2-user/mumbai_linux_pem.pem docker-compose.yml ec2-user@${nginx_ip}:/home/ec2-user'
-    }
-	}
+        stage('Aravinth SonarQube Analysis'){
+	 steps{
+         withSonarQubeEnv('sonar'){
+         sh "${mvnHome}/bin/mvn sonar:sonar"
+         }}}
 
-    stage('Aravinth Remove Previous Container') {
-	steps {
-        try {
-            sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rm -f ara_tomcat'
-        } catch(error) {
-            //  do nothing if there is an exception
-        }
-	}
+        stage('Aravinth Docker compose'){
+	 steps{
+         sh 'scp /home/ec2-user/mumbai_linux_pem.pem docker-compose.yml ec2-user@${nginx_ip}:/home/ec2-user'
+         }}
 
-    stage('Aravinth Build Docker Imager') {
-	steps {
-        sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker compose up -d'
-    }
-	}
+        stage('Aravinth Remove Previous Container'){
+	 steps{
+         try{
+         sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rm -f ara_tomcat'
+         } 
+	 catch(error){
+         //do nothing if there is an exception
+         }}
 
-    stage('Aravinth Docker Image Push') {
-	steps {
-        withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPassword')]) {
-            sh "docker login -u jjaba -p ${dockerPassword}"
-        }
-        sh 'docker push jjaba/myweb:0.0.2'
-    }
-	}
+        stage('Aravinth Build Docker Imager'){
+	 steps{
+         sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker compose up -d'
+    	 }}
 
-    stage('Aravinth Nexus Image Push') {
+        stage('Aravinth Docker Image Push'){
+	 steps{
+         withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPassword')]){
+         sh "docker login -u jjaba -p ${dockerPassword}"
+         }
+         sh 'docker push jjaba/myweb:0.0.2'
+         }}
+
+       stage('Aravinth Nexus Image Push') {
 	steps {
         sh "docker login -u admin -p Admin@123 ubuntunexus.local:8087"
         sh "docker tag jjaba/myweb:0.0.2 ubuntunexus.local:8087/jjaba:1.0.0"
         sh 'docker push ubuntunexus.local:8087/jjaba:1.0.0'
-    }    
-	}
+        }}
 
-
-}
-}
+}}
