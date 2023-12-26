@@ -30,7 +30,7 @@ stages
 
         stage('Aravinth Docker compose File copy'){
 	 steps{
-         sh 'scp -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no  docker-compose.yml ec2-user@${nginx_ip}:/home/ec2-user'
+         sh 'scp -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no  docker-compose.yml ec2-user@${nginx_ip}:/home/ec2-user'
          }}
 
         stage('Aravinth Remove Previous Container'){
