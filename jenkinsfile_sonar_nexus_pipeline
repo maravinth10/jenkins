@@ -40,7 +40,7 @@ stages
          } 
 	 catch(error){
          //do nothing if there is an exception
-         }}
+         }}}
 
         stage('Aravinth Build Docker Imager'){
 	 steps{
