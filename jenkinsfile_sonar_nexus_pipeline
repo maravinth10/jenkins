@@ -35,12 +35,14 @@ stages
 
         stage('Aravinth Remove Previous Container'){
 	 steps{
-         try{
+	     script {
+         try {
          sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rm -f ara_tomcat'
          } 
-	 catch(error){
-         //do nothing if there is an exception
-         }}}
+        catch (err) {
+            echo err.getMessage()
+            echo "Error detected, but we will continue."
+        }}}}
 
         stage('Aravinth Build Docker Imager'){
 	 steps{
