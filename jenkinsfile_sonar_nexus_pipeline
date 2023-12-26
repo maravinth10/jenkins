@@ -36,7 +36,7 @@ stages
         stage('Aravinth Remove Previous Container'){
 	 steps{
          try{
-         sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rm -f ara_tomcat'
+         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rm -f ara_tomcat'
          } 
 	 catch(error){
          //do nothing if there is an exception
@@ -44,7 +44,7 @@ stages
 
         stage('Aravinth Build Docker Imager'){
 	 steps{
-         sh 'ssh -i /home/ec2-user/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker compose up -d'
+         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker compose up -d'
     	 }}
 
         stage('Aravinth Docker Image Push'){
