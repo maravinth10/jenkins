@@ -52,9 +52,9 @@ stages
         stage('Aravinth Docker Image Push'){
 	 steps{
          withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPassword')]){
-         sh "docker login -u jjaba -p ${dockerPassword}"
+         sh "ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker login -u jjaba -p ${dockerPassword}"
          }
-         sh 'docker push jjaba/myweb:0.0.2'
+         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker push jjaba/myweb:0.0.2'
          }}
 
        stage('Aravinth Nexus Image Push') {
