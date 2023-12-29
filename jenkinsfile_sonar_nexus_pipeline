@@ -48,7 +48,7 @@ stages
 	 steps{
 	     script {
          try {
-         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rmi -f jjaba/myweb'
+         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rmi -f jjaba/myweb:0.0.2'
          } 
         catch (err) {
             echo err.getMessage()
