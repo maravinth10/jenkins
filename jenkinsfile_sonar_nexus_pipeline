@@ -30,9 +30,8 @@ stages
 
         stage('Aravinth Docker compose File copy'){
 	 steps{
-         sh 'scp -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no  docker-compose.yml ec2-user@${nginx_ip}:/home/ec2-user'
-	 sh 'scp -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no   target/newapp.war ec2-user@${nginx_ip}:/home/ec2-user'
-         }}
+         sh 'scp -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no dockerfile docker-compose.yml target/newapp.war ec2-user@${nginx_ip}:/home/ec2-user'
+	 }}
 
         stage('Aravinth Remove Previous Container'){
 	 steps{
@@ -45,7 +44,22 @@ stages
             echo "Error detected, but we will continue."
         }}}}
 
-        stage('Aravinth Build Docker Imager'){
+        stage('Aravinth Remove Previous Image'){
+	 steps{
+	     script {
+         try {
+         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker rmi -f jjaba/myweb'
+         } 
+        catch (err) {
+            echo err.getMessage()
+            echo "Error detected, but we will continue."
+        }}}}
+        stage('Aravinth Build Docker image'){
+	 steps{
+         sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker build -t jjaba/myweb:0.0.2 .'
+    	 }}
+
+        stage('Aravinth Docker compose'){
 	 steps{
          sh 'ssh -i /var/lib/jenkins/mumbai_linux_pem.pem -o StrictHostKeyChecking=no -tt ec2-user@${nginx_ip} docker compose up -d'
     	 }}
